@@ -15,12 +15,12 @@ const PurchaseScreen = () => {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
       
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text style={styles.headerTitle}>StrategicERP</Text>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       <View style={styles.content}>
         <Text style={styles.screenTitle}>Purchase Screen</Text>
