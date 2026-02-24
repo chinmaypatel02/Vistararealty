@@ -1,10 +1,8 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
+import { View, Text, StyleSheet } from 'react-native';
 import BottomTabNavigator from './BottomTabNavigator';
-import ProjectsScreen from '../screens/Drawerscreen/Projectscreen/Projectscreen';
-import SitesScreen from '../screens/Drawerscreen/Sitescreen/Sitescreen';
-import ContractorsScreen from '../screens/Drawerscreen/Contractorscreen/Contractorscreen';
-import PurchaseScreen from '../screens/Drawerscreen/Purchasescreen/Purchasescreen';
 import InventoryScreen from '../screens/Drawerscreen/Inventoryscreen/Inventoryscreen';
 import PaymentScreen from '../screens/Drawerscreen/Paymentscreen/Paymentscreen';
 import ReportScreen from '../screens/Drawerscreen/Reportscreen/Reportscreen';
@@ -13,9 +11,47 @@ import SettingScreen from '../screens/Drawerscreen/Settingscreen/Settingscreen';
 
 const Drawer = createDrawerNavigator();
 
+const CustomDrawerContent = (props) => {
+  const { navigation } = props;
+  return (
+    <DrawerContentScrollView {...props} contentContainerStyle={styles.drawerContent}>
+      <View style={styles.drawerHeader}>
+        <Text style={styles.drawerHeaderText}>StrategicERP</Text>
+      </View>
+
+      {/* Bottom Tab screens — reuse existing tabs */}
+      <DrawerItem label="Dashboard" labelStyle={styles.label}
+        onPress={() => navigation.navigate('Dashboard')} />
+      <DrawerItem label="Admin" labelStyle={styles.label}
+        onPress={() => navigation.navigate('Dashboard', { screen: 'Admin' })} />
+      <DrawerItem label="Projects" labelStyle={styles.label}
+        onPress={() => navigation.navigate('Dashboard', { screen: 'Projects' })} />
+      <DrawerItem label="Sites" labelStyle={styles.label}
+        onPress={() => navigation.navigate('Dashboard', { screen: 'Sites' })} />
+      <DrawerItem label="Contractors" labelStyle={styles.label}
+        onPress={() => navigation.navigate('Dashboard', { screen: 'Contractors' })} />
+      <DrawerItem label="Purchase" labelStyle={styles.label}
+        onPress={() => navigation.navigate('Dashboard', { screen: 'Purchase' })} />
+
+      {/* Drawer-only screens */}
+      <DrawerItem label="Inventory" labelStyle={styles.label}
+        onPress={() => navigation.navigate('Inventory')} />
+      <DrawerItem label="Payments" labelStyle={styles.label}
+        onPress={() => navigation.navigate('Payments')} />
+      <DrawerItem label="Reports" labelStyle={styles.label}
+        onPress={() => navigation.navigate('Reports')} />
+      <DrawerItem label="Clients" labelStyle={styles.label}
+        onPress={() => navigation.navigate('Clients')} />
+      <DrawerItem label="Settings" labelStyle={styles.label}
+        onPress={() => navigation.navigate('Settings')} />
+    </DrawerContentScrollView>
+  );
+};
+
 const DrawerNavigator = () => {
   return (
     <Drawer.Navigator
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         headerShown: true,
         headerStyle: { backgroundColor: '#0F2A44' },
@@ -24,63 +60,42 @@ const DrawerNavigator = () => {
           backgroundColor: '#0F2A44',
           width: 280,
         },
-        drawerActiveTintColor: '#fff',
-        drawerInactiveTintColor: '#B0C4DE',
-        drawerLabelStyle: { fontSize: 15, fontWeight: '500' },
       }}
     >
       <Drawer.Screen
         name="Dashboard"
         component={BottomTabNavigator}
-        options={{ title: 'StrategicERP', drawerLabel: 'Dashboard' }}
+        options={{ title: 'StrategicERP' }}
       />
-      <Drawer.Screen
-        name="Projects"
-        component={ProjectsScreen}
-        options={{ title: 'Projects', drawerLabel: 'Projects' }}
-      />
-      <Drawer.Screen
-        name="Sites"
-        component={SitesScreen}
-        options={{ title: 'Sites', drawerLabel: 'Sites' }}
-      />
-      <Drawer.Screen
-        name="Contractors"
-        component={ContractorsScreen}
-        options={{ title: 'Contractors', drawerLabel: 'Contractors' }}
-      />
-      <Drawer.Screen
-        name="Purchase"
-        component={PurchaseScreen}
-        options={{ title: 'Purchase Orders', drawerLabel: 'Purchase Orders' }}
-      />
-      <Drawer.Screen
-        name="Inventory"
-        component={InventoryScreen}
-        options={{ title: 'Inventory', drawerLabel: 'Inventory' }}
-      />
-      <Drawer.Screen
-        name="Payments"
-        component={PaymentScreen}
-        options={{ title: 'Payments', drawerLabel: 'Payments' }}
-      />
-      <Drawer.Screen
-        name="Reports"
-        component={ReportScreen}
-        options={{ title: 'Reports', drawerLabel: 'Reports' }}
-      />
-      <Drawer.Screen
-        name="Clients"
-        component={ClientScreen}
-        options={{ title: 'Clients', drawerLabel: 'Clients' }}
-      />
-      <Drawer.Screen
-        name="Settings"
-        component={SettingScreen}
-        options={{ title: 'Settings', drawerLabel: 'Settings' }}
-      />
+      <Drawer.Screen name="Inventory" component={InventoryScreen} options={{ title: 'Inventory' }} />
+      <Drawer.Screen name="Payments" component={PaymentScreen} options={{ title: 'Payments' }} />
+      <Drawer.Screen name="Reports" component={ReportScreen} options={{ title: 'Reports' }} />
+      <Drawer.Screen name="Clients" component={ClientScreen} options={{ title: 'Clients' }} />
+      <Drawer.Screen name="Settings" component={SettingScreen} options={{ title: 'Settings' }} />
     </Drawer.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  drawerContent: {
+    flex: 1,
+  },
+  drawerHeader: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1a3a5c',
+    marginBottom: 8,
+  },
+  drawerHeaderText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  label: {
+    color: '#B0C4DE',
+    fontSize: 15,
+    fontWeight: '500',
+  },
+});
 
 export default DrawerNavigator;
