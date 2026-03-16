@@ -2,7 +2,9 @@ import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { View, Text, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomTabNavigator from './BottomTabNavigator';
+import AdminScreen from '../screens/Dashboardscreen/Adminscreen/Adminscreen';
 import InventoryScreen from '../screens/Drawerscreen/Inventoryscreen/Inventoryscreen';
 import PaymentScreen from '../screens/Drawerscreen/Paymentscreen/Paymentscreen';
 import ReportScreen from '../screens/Drawerscreen/Reportscreen/Reportscreen';
@@ -13,8 +15,9 @@ const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = (props) => {
   const { navigation } = props;
+  const insets = useSafeAreaInsets();
   return (
-    <DrawerContentScrollView {...props} contentContainerStyle={styles.drawerContent}>
+    <DrawerContentScrollView {...props} contentContainerStyle={[styles.drawerContent, { paddingBottom: insets.bottom + 16 }]}>
       <View style={styles.drawerHeader}>
         <Text style={styles.drawerHeaderText}>StrategicERP</Text>
       </View>
@@ -22,8 +25,10 @@ const CustomDrawerContent = (props) => {
       {/* Bottom Tab screens — reuse existing tabs */}
       <DrawerItem label="Dashboard" labelStyle={styles.label}
         onPress={() => navigation.navigate('Dashboard')} />
+      <DrawerItem label="Home" labelStyle={styles.label}
+        onPress={() => navigation.navigate('Dashboard', { screen: 'Home' })} />
       <DrawerItem label="Admin" labelStyle={styles.label}
-        onPress={() => navigation.navigate('Dashboard', { screen: 'Admin' })} />
+        onPress={() => navigation.navigate('Admin')} />
       <DrawerItem label="Projects" labelStyle={styles.label}
         onPress={() => navigation.navigate('Dashboard', { screen: 'Projects' })} />
       <DrawerItem label="Sites" labelStyle={styles.label}
@@ -67,6 +72,7 @@ const DrawerNavigator = () => {
         component={BottomTabNavigator}
         options={{ title: 'StrategicERP' }}
       />
+      <Drawer.Screen name="Admin" component={AdminScreen} options={{ title: 'Admin' }} />
       <Drawer.Screen name="Inventory" component={InventoryScreen} options={{ title: 'Inventory' }} />
       <Drawer.Screen name="Payments" component={PaymentScreen} options={{ title: 'Payments' }} />
       <Drawer.Screen name="Reports" component={ReportScreen} options={{ title: 'Reports' }} />

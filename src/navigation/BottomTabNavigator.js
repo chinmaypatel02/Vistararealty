@@ -1,17 +1,21 @@
 import React from 'react';
 import { Text, Dimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import AdminScreen from '../screens/Dashboardscreen/Adminscreen/Adminscreen';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import HomeScreen from '../screens/Dashboardscreen/Homescreen/Homescreen';
 import ProjectsScreen from '../screens/Dashboardscreen/Projectscreen/Projectscreen'
 import SitesScreen from '../screens/Dashboardscreen/Sitescreen/Sitescreen';
 import ContractorsScreen from '../screens/Dashboardscreen/Contractorscreen/Contractorscreen'
 import PurchaseScreen from '../screens/Dashboardscreen/Purchasescreen/Purchasescreen'
 import { COLORS } from '../constants/theme';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = 56 + insets.bottom;
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -20,9 +24,9 @@ const BottomTabNavigator = () => {
           backgroundColor: COLORS.white,
           borderTopWidth: 1,
           borderTopColor: '#E0E0E0',
-          height: height * 0.08,
-          paddingBottom: height * 0.01,
-          paddingTop: height * 0.008,
+          height: tabBarHeight,
+          paddingBottom: insets.bottom + 4,
+          paddingTop: 6,
         },
         tabBarActiveTintColor: COLORS.primary,
         tabBarInactiveTintColor: '#999999',
@@ -33,11 +37,11 @@ const BottomTabNavigator = () => {
       }}
     >
       <Tab.Screen
-        name="Admin"
-        component={AdminScreen}
+        name="Home"
+        component={HomeScreen}
         options={{
-          tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: width * 0.06 }}>⚙️</Text>
+          tabBarIcon: () => (
+            <Text style={{ fontSize: width * 0.06 }}>🏠</Text>
           ),
         }}
       />
@@ -45,7 +49,7 @@ const BottomTabNavigator = () => {
         name="Projects"
         component={ProjectsScreen}
         options={{
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: () => (
             <Text style={{ fontSize: width * 0.06 }}>🏗️</Text>
           ),
         }}
@@ -54,7 +58,7 @@ const BottomTabNavigator = () => {
         name="Sites"
         component={SitesScreen}
         options={{
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: () => (
             <Text style={{ fontSize: width * 0.06 }}>📍</Text>
           ),
         }}
@@ -63,7 +67,7 @@ const BottomTabNavigator = () => {
         name="Contractors"
         component={ContractorsScreen}
         options={{
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: () => (
             <Text style={{ fontSize: width * 0.06 }}>👷</Text>
           ),
         }}
@@ -72,7 +76,7 @@ const BottomTabNavigator = () => {
         name="Purchase"
         component={PurchaseScreen}
         options={{
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: () => (
             <Text style={{ fontSize: width * 0.06 }}>🛒</Text>
           ),
         }}
