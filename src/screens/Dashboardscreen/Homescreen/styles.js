@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
 
   // ── Profile Card ──
   profileCard: {
-    backgroundColor: '#0F2A44',
+    backgroundColor: '#1E4080',
     alignItems: 'center',
     paddingTop: 28,
     paddingBottom: 24,
@@ -92,9 +92,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 3,
   },
-  signInBtn: { backgroundColor: '#00A693' },
-  signOutBtn: { backgroundColor: '#00A693' },
-  leaveBtn:  { backgroundColor: '#00A693' },
+  signInBtn: { backgroundColor: '#D44B1A' },
+  signOutBtn: { backgroundColor: '#D44B1A' },
+  leaveBtn:  { backgroundColor: '#D44B1A' },
   actionBtnIcon: {
     fontSize: 18,
     color: '#fff',
@@ -123,10 +123,10 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: width * 0.038,
     fontWeight: '700',
-    color: '#0F2A44',
+    color: '#1E4080',
     marginBottom: 14,
     borderLeftWidth: 4,
-    borderLeftColor: '#00A693',
+    borderLeftColor: '#D44B1A',
     paddingLeft: 10,
   },
 
@@ -145,9 +145,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FA',
   },
   totalRow: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#EEF2FA',
     borderTopWidth: 2,
-    borderTopColor: '#00A693',
+    borderTopColor: '#D44B1A',
   },
   tableCell: {
     paddingVertical: 8,
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     fontWeight: '700',
-    color: '#0F2A44',
+    color: '#1E4080',
     fontSize: width * 0.026,
     textAlign: 'center',
   },
@@ -179,11 +179,11 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontWeight: 'bold',
-    color: '#00A693',
+    color: '#D44B1A',
   },
   totalText: {
     fontWeight: 'bold',
-    color: '#00A693',
+    color: '#D44B1A',
   },
 
   // ── User Info ──

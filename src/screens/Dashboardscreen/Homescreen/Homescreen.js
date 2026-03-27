@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   StatusBar,
-  Image,
+  Alert,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import ReactNativeBiometrics from 'react-native-biometrics';
 import styles from './styles';
 
 const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -32,7 +34,36 @@ const weekDates = getWeekDates();
 const attendanceData = weekDates.map(() => ({ in: '00:00', out: '00:00', total: '00:00' }));
 
 const HomeScreen = () => {
-  const [signedIn, setSignedIn] = useState(false);
+  const navigation = useNavigation();
+
+  const authenticateAndNavigate = async () => {
+    try {
+      const rnBiometrics = new ReactNativeBiometrics({ allowDeviceCredentials: true });
+      const { available } = await rnBiometrics.isSensorAvailable();
+
+      if (!available) {
+        Alert.alert(
+          'Biometrics Unavailable',
+          'Please set up fingerprint or face unlock in your device settings.',
+        );
+        return;
+      }
+
+      const { success, error } = await rnBiometrics.simplePrompt({
+        promptMessage: 'Authenticate to continue',
+        cancelButtonText: 'Cancel',
+      });
+
+      if (success) {
+        navigation.navigate('SignIn');
+      } else if (error && !error.includes('cancel') && !error.includes('Cancel')) {
+        Alert.alert('Authentication Failed', 'Please try again.');
+      }
+      // user tapped Cancel — do nothing silently
+    } catch {
+      Alert.alert('Error', 'Could not authenticate. Please try again.');
+    }
+  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -76,7 +107,7 @@ const HomeScreen = () => {
       <View style={styles.actionRow}>
         <TouchableOpacity
           style={[styles.actionBtn, styles.signInBtn]}
-          onPress={() => setSignedIn(true)}
+          onPress={authenticateAndNavigate}
           activeOpacity={0.8}
         >
           <Text style={styles.actionBtnIcon}>↩</Text>
@@ -85,7 +116,7 @@ const HomeScreen = () => {
 
         <TouchableOpacity
           style={[styles.actionBtn, styles.signOutBtn]}
-          onPress={() => setSignedIn(false)}
+          onPress={authenticateAndNavigate}
           activeOpacity={0.8}
         >
           <Text style={styles.actionBtnIcon}>↪</Text>

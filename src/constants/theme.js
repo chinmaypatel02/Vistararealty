@@ -1,6 +1,7 @@
 export const COLORS = {
-  primary: '#2E5AAC',
-  secondary: '#5B9BD5',
+  primary: '#1E4080',    // Vistara navy blue (tick + text in logo)
+  accent: '#D44B1A',     // Vistara orange-red (pixel squares + underline in logo)
+  secondary: '#4A7CC7',  // lighter logo blue
   white: '#FFFFFF',
   background: '#F5F5F5',
   text: '#333333',

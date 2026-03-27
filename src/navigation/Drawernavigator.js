@@ -59,10 +59,10 @@ const DrawerNavigator = () => {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         headerShown: true,
-        headerStyle: { backgroundColor: '#0F2A44' },
+        headerStyle: { backgroundColor: '#1E4080' },
         headerTintColor: '#fff',
         drawerStyle: {
-          backgroundColor: '#0F2A44',
+          backgroundColor: '#1E4080',
           width: 280,
         },
       }}
