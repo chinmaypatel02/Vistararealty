@@ -3,10 +3,7 @@ import { Text, Dimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HomeScreen from '../screens/Dashboardscreen/Homescreen/Homescreen';
-import ProjectsScreen from '../screens/Dashboardscreen/Projectscreen/Projectscreen'
-import SitesScreen from '../screens/Dashboardscreen/Sitescreen/Sitescreen';
-import ContractorsScreen from '../screens/Dashboardscreen/Contractorscreen/Contractorscreen'
-import PurchaseScreen from '../screens/Dashboardscreen/Purchasescreen/Purchasescreen'
+import ModulesScreen from '../screens/Modulesscreen/ModulesScreen';
 import { COLORS } from '../constants/theme';
 
 const { width } = Dimensions.get('window');
@@ -40,44 +37,18 @@ const BottomTabNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{
+          tabBarLabel: 'Dashboard',
           tabBarIcon: () => (
             <Text style={{ fontSize: width * 0.06 }}>🏠</Text>
           ),
         }}
       />
       <Tab.Screen
-        name="Projects"
-        component={ProjectsScreen}
+        name="Modules"
+        component={ModulesScreen}
         options={{
           tabBarIcon: () => (
-            <Text style={{ fontSize: width * 0.06 }}>🏗️</Text>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Sites"
-        component={SitesScreen}
-        options={{
-          tabBarIcon: () => (
-            <Text style={{ fontSize: width * 0.06 }}>📍</Text>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Contractors"
-        component={ContractorsScreen}
-        options={{
-          tabBarIcon: () => (
-            <Text style={{ fontSize: width * 0.06 }}>👷</Text>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Purchase"
-        component={PurchaseScreen}
-        options={{
-          tabBarIcon: () => (
-            <Text style={{ fontSize: width * 0.06 }}>🛒</Text>
+            <Text style={{ fontSize: width * 0.06 }}>📋</Text>
           ),
         }}
       />
