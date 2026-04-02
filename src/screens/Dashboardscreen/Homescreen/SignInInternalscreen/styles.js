@@ -5,16 +5,23 @@ const { width } = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F0F2F5' },
 
-  locationCard: {
-    backgroundColor: '#fff', margin: 14, borderRadius: 12,
-    padding: 16, elevation: 3,
+  // ── Map ──────────────────────────────────────────────────────────
+  mapCard: {
+    margin: 14, borderRadius: 14, overflow: 'hidden',
+    elevation: 4, backgroundColor: '#fff',
   },
-  locRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  locDot: { width: 14, height: 14, borderRadius: 7 },
-  locTitle: { fontSize: width * 0.038, fontWeight: '700', color: '#222' },
-  locCoords: { fontSize: width * 0.028, color: '#888', marginTop: 2 },
-  locLoadingText: { marginLeft: 10, color: '#555' },
-  locBadge: { fontSize: 22, fontWeight: 'bold' },
+  map: { width: '100%', height: 220 },
+  mapLoader: {
+    height: 220, justifyContent: 'center', alignItems: 'center', gap: 10, backgroundColor: '#f0f2f5',
+  },
+  mapStatusBar: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 14, paddingVertical: 10, gap: 8, flexWrap: 'wrap',
+  },
+  locDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#fff' },
+  mapStatusText: { color: '#fff', fontWeight: '700', fontSize: width * 0.035, flex: 1 },
+  mapCoordsText: { color: 'rgba(255,255,255,0.8)', fontSize: width * 0.027 },
+  locLoadingText: { color: '#555', fontSize: width * 0.035 },
 
   statusRow: { flexDirection: 'row', marginHorizontal: 14, marginBottom: 14, gap: 10 },
   statusBox: {

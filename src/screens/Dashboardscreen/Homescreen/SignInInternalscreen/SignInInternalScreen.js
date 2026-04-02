@@ -4,13 +4,14 @@ import {
   TextInput, Alert, PermissionsAndroid, Platform, ActivityIndicator,
 } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
+import MapView, { Circle, Marker } from 'react-native-maps';
 import styles from './styles';
 
 // ── Office location & geofence ──────────────────────────────────
 const OFFICE = {
-  latitude: 23.0225,
-  longitude: 72.5714,
-  radius: 100,
+  latitude: 23.1318,
+  longitude: 72.5691,
+  radius: 500,         // 500 metres — must be within this range to sign in
 };
 
 // ── Helpers ─────────────────────────────────────────────────────
@@ -122,27 +123,61 @@ const SignInInternalScreen = () => {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
 
-      {/* Location Status */}
-      <View style={styles.locationCard}>
+      {/* Live Map */}
+      <View style={styles.mapCard}>
         {locLoading ? (
-          <View style={styles.locRow}>
-            <ActivityIndicator size="small" color="#1E4080" />
+          <View style={styles.mapLoader}>
+            <ActivityIndicator size="large" color="#1E4080" />
             <Text style={styles.locLoadingText}>Getting your location...</Text>
           </View>
         ) : (
-          <View style={styles.locRow}>
-            <View style={[styles.locDot, { backgroundColor: inGeofence ? '#2E7D32' : '#C62828' }]} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.locTitle}>{inGeofence ? 'Inside Office Zone' : 'Outside Office Zone'}</Text>
-              {userLocation && (
-                <Text style={styles.locCoords}>
-                  {userLocation.latitude.toFixed(5)}, {userLocation.longitude.toFixed(5)}
-                </Text>
-              )}
-            </View>
-            <Text style={[styles.locBadge, { color: inGeofence ? '#2E7D32' : '#C62828' }]}>
-              {inGeofence ? '✓' : '✗'}
+          <MapView
+            style={styles.map}
+            showsUserLocation={true}
+            followsUserLocation={true}
+            showsMyLocationButton={false}
+            initialRegion={{
+              latitude: userLocation ? userLocation.latitude : OFFICE.latitude,
+              longitude: userLocation ? userLocation.longitude : OFFICE.longitude,
+              latitudeDelta: 0.012,
+              longitudeDelta: 0.012,
+            }}
+            region={userLocation ? {
+              latitude: userLocation.latitude,
+              longitude: userLocation.longitude,
+              latitudeDelta: 0.012,
+              longitudeDelta: 0.012,
+            } : undefined}
+          >
+            {/* Office geofence circle */}
+            <Circle
+              center={{ latitude: OFFICE.latitude, longitude: OFFICE.longitude }}
+              radius={OFFICE.radius}
+              strokeColor={inGeofence ? '#2E7D32' : '#C62828'}
+              strokeWidth={2}
+              fillColor={inGeofence ? 'rgba(46,125,50,0.12)' : 'rgba(198,40,40,0.10)'}
+            />
+            {/* Office pin */}
+            <Marker
+              coordinate={{ latitude: OFFICE.latitude, longitude: OFFICE.longitude }}
+              title="Office"
+              pinColor="#1E4080"
+            />
+          </MapView>
+        )}
+
+        {/* Zone status bar at bottom of map */}
+        {!locLoading && (
+          <View style={[styles.mapStatusBar, { backgroundColor: inGeofence ? '#2E7D32' : '#C62828' }]}>
+            <View style={styles.locDot} />
+            <Text style={styles.mapStatusText}>
+              {inGeofence ? '✓  Inside Office Zone' : '✗  Outside Office Zone (500 m radius)'}
             </Text>
+            {userLocation && (
+              <Text style={styles.mapCoordsText}>
+                {userLocation.latitude.toFixed(4)}, {userLocation.longitude.toFixed(4)}
+              </Text>
+            )}
           </View>
         )}
       </View>
