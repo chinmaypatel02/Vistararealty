@@ -17,6 +17,7 @@ import PaymentsScreen from '../screens/Drawerscreen/Paymentscreen/Paymentscreen'
 import ReportsScreen from '../screens/Drawerscreen/Reportscreen/Reportscreen';
 import ClientsScreen from '../screens/Drawerscreen/Clientscreen/Clientscreen';
 import SettingsScreen from '../screens/Drawerscreen/Settingscreen/Settingscreen';
+import LeaveScreen from '../screens/Dashboardscreen/Leavescreen/LeaveScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +46,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Reports" component={ReportsScreen} />
         <Stack.Screen name="Clients" component={ClientsScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="Leave" component={LeaveScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

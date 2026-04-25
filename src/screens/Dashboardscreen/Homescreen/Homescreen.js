@@ -126,6 +126,7 @@ const HomeScreen = () => {
         <TouchableOpacity
           style={[styles.actionBtn, styles.leaveBtn]}
           activeOpacity={0.8}
+          onPress={() => navigation.navigate('Leave')}
         >
           <Text style={styles.actionBtnIcon}>📅</Text>
           <Text style={styles.actionBtnText}>APPLY LEAVE</Text>
