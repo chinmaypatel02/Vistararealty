@@ -5,8 +5,11 @@
 
 import React, { useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider } from 'react-redux';
+import store from './src/redux/store';
 import SplashScreen from './src/screens/Splashscreen/Splashscreen';
-import AppNavigator from './src/navigation/Appnavigator'
+import AppNavigator from './src/navigation/Appnavigator';
+
 function App() {
   const [showSplash, setShowSplash] = useState(true);
 
@@ -16,16 +19,20 @@ function App() {
 
   if (showSplash) {
     return (
-      <SafeAreaProvider>
-        <SplashScreen onFinish={handleSplashFinish} />
-      </SafeAreaProvider>
+      <Provider store={store}>
+        <SafeAreaProvider>
+          <SplashScreen onFinish={handleSplashFinish} />
+        </SafeAreaProvider>
+      </Provider>
     );
   }
 
   return (
-    <SafeAreaProvider>
-      <AppNavigator />
-    </SafeAreaProvider>
+    <Provider store={store}>
+      <SafeAreaProvider>
+        <AppNavigator />
+      </SafeAreaProvider>
+    </Provider>
   );
 }
 

@@ -1,39 +1,4 @@
-// import React from 'react';
-// import {
-//   View,
-//   Text,
-//   StatusBar,
-//   TouchableOpacity,
-// } from 'react-native';
-// import { COLORS } from '../../constants/theme';
-// import styles from './styles';
-// const HomeScreen = () => {
-//   return (
-//     <View style={styles.container}>
-//       <StatusBar barStyle="dark-content" backgroundColor={COLORS.white} />
-      
-//       <View style={styles.header}>
-//         <Text style={styles.headerTitle}>Vistara Group</Text>
-//         <Text style={styles.headerSubtitle}>Welcome to the app</Text>
-//       </View>
-
-//       <View style={styles.content}>
-//         <Text style={styles.welcomeText}>
-//           Your navigation is set up and ready to go!
-//         </Text>
-        
-//         <TouchableOpacity style={styles.button}>
-//           <Text style={styles.buttonText}>Get Started</Text>
-//         </TouchableOpacity>
-//       </View>
-//     </View>
-//   );
-// };
-
-// export default HomeScreen;
-
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -44,22 +9,43 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { verifyCompany } from '../../redux/actions/authActions';
 import { COLORS } from '../../constants/theme';
 import images from '../../constants/images';
- import styles from './styles';
+import styles from './styles';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { companyLoading, company, companyError } = useSelector((state) => state.auth);
+
   const [companyCode, setCompanyCode] = useState('');
 
-  const handleSubmit = () => {
-    if (companyCode.trim()) {
-      navigation.navigate('Login', { companyCode });
-    } else {
-      alert('Please enter a company code');
+  // When company verified successfully, navigate to Login
+  useEffect(() => {
+    if (company) {
+      navigation.navigate('Login', { companyCode: company.code });
     }
+  }, [company]);
+
+  // Show error alert if verification fails
+  useEffect(() => {
+    if (companyError) {
+      Alert.alert('Invalid Company', companyError);
+    }
+  }, [companyError]);
+
+  const handleSubmit = () => {
+    if (!companyCode.trim()) {
+      Alert.alert('Required', 'Please enter a company code.');
+      return;
+    }
+    dispatch(verifyCompany(companyCode.trim()));
   };
 
   return (
@@ -80,10 +66,6 @@ const HomeScreen = () => {
             resizeMode="contain"
           />
 
-          {/* Title */}
-          {/* <Text style={styles.title}>Vistara Group</Text>
-          <Text style={styles.subtitle}>Enter your company code to continue</Text> */}
-
           {/* Company Code Input */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Company Code</Text>
@@ -95,6 +77,7 @@ const HomeScreen = () => {
               onChangeText={setCompanyCode}
               autoCapitalize="characters"
               autoCorrect={false}
+              editable={!companyLoading}
             />
           </View>
 
@@ -102,12 +85,17 @@ const HomeScreen = () => {
           <TouchableOpacity
             style={[
               styles.submitButton,
-              !companyCode.trim() && styles.submitButtonDisabled,
+              (!companyCode.trim() || companyLoading) && styles.submitButtonDisabled,
             ]}
             onPress={handleSubmit}
             activeOpacity={0.8}
+            disabled={companyLoading}
           >
-            <Text style={styles.submitButtonText}>Submit</Text>
+            {companyLoading ? (
+              <ActivityIndicator color={COLORS.white} />
+            ) : (
+              <Text style={styles.submitButtonText}>Submit</Text>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
