@@ -18,7 +18,7 @@ import ReportsScreen from '../screens/Drawerscreen/Reportscreen/Reportscreen';
 import ClientsScreen from '../screens/Drawerscreen/Clientscreen/Clientscreen';
 import SettingsScreen from '../screens/Drawerscreen/Settingscreen/Settingscreen';
 import LeaveScreen from '../screens/Dashboardscreen/Leavescreen/LeaveScreen';
-import RequestLeaveScreen from '../screens/Dashboardscreen/Leavescreen/RequestLeaveScreen';
+import RequestLeaveScreen from '../screens/Dashboardscreen/Leavescreen/RequestLeave/RequestLeaveScreen';
 
 const Stack = createNativeStackNavigator();
 

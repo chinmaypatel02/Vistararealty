@@ -15,9 +15,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS } from '../../../constants/theme';
-import images from '../../../constants/images';
-import styles from './RequestLeaveStyles';
+import { COLORS } from '../../../../constants/theme';
+import images from '../../../../constants/images';
+import styles from './styles';
 
 const { height } = Dimensions.get('window');
 
