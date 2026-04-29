@@ -20,6 +20,12 @@ export default StyleSheet.create({
   backButton: {
     padding: width * 0.01,
   },
+  backIconImage: {
+    width: width * 0.06,
+    height: width * 0.06,
+    resizeMode: 'contain',
+    tintColor: COLORS.white,
+  },
   headerTitle: {
     flex: 1,
     textAlign: 'center',
@@ -82,5 +88,11 @@ export default StyleSheet.create({
     shadowOffset: { width: 0, height: width * 0.008 },
     shadowOpacity: 0.25,
     shadowRadius: width * 0.01,
+  },
+  fabIcon: {
+    width: width * 0.07,
+    height: width * 0.07,
+    resizeMode: 'contain',
+    tintColor: COLORS.white,
   },
 });

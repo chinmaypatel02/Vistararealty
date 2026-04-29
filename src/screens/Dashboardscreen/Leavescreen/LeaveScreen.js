@@ -5,14 +5,15 @@ import {
   TouchableOpacity,
   StatusBar,
   Dimensions,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TabView, SceneMap } from 'react-native-tab-view';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import BalanceScreen from './BalanceScreen/BalanceScreen';
 import HistoryScreen from './HistoryScreen/HistoryScreen';
 import { COLORS } from '../../../constants/theme';
+import images from '../../../constants/images';
 import styles from './styles';
 
 const { width } = Dimensions.get('window');
@@ -59,7 +60,7 @@ const LeaveScreen = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrow-back" size={24} color={COLORS.white} />
+          <Image source={images.backIcon} style={styles.backIconImage} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Leave</Text>
         <View style={styles.headerRight} />
@@ -84,9 +85,9 @@ const LeaveScreen = () => {
       <TouchableOpacity
         style={styles.fab}
         activeOpacity={0.85}
-        onPress={() => {}}
+        onPress={() => navigation.navigate('RequestLeave')}
       >
-        <Icon name="add" size={28} color={COLORS.white} />
+        <Image source={images.plusIcon} style={styles.fabIcon} />
       </TouchableOpacity>
     </SafeAreaView>
   );
