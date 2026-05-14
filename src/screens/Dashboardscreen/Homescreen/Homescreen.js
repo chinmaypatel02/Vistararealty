@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,64 +6,59 @@ import {
   TouchableOpacity,
   StatusBar,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import { fetchDashboard } from '../../../redux/actions/dashboardActions';
 import styles from './styles';
-
-const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-const getWeekDates = () => {
-  const today = new Date();
-  const day = today.getDay(); // 0=Sun
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
-  return WEEK_DAYS.map((label, i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    return {
-      label,
-      date: d.getDate(),
-      month: d.toLocaleString('en', { month: 'short' }).toUpperCase(),
-    };
-  });
-};
-
-const weekDates = getWeekDates();
-
-const attendanceData = weekDates.map(() => ({ in: '00:00', out: '00:00', total: '00:00' }));
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const dispatch   = useDispatch();
+
+  const { loading, user, stats, weeklyAttendance } = useSelector(
+    (state) => state.dashboard,
+  );
+
+  useEffect(() => {
+    dispatch(fetchDashboard());
+  }, []);
 
   const authenticateAndNavigate = async () => {
     try {
       const rnBiometrics = new ReactNativeBiometrics({ allowDeviceCredentials: true });
       const { available } = await rnBiometrics.isSensorAvailable();
-
       if (!available) {
-        Alert.alert(
-          'Biometrics Unavailable',
-          'Please set up fingerprint or face unlock in your device settings.',
-        );
+        Alert.alert('Biometrics Unavailable', 'Please set up fingerprint or face unlock in your device settings.');
         return;
       }
-
-      const { success, error } = await rnBiometrics.simplePrompt({
+      const { success, error: bioError } = await rnBiometrics.simplePrompt({
         promptMessage: 'Authenticate to continue',
         cancelButtonText: 'Cancel',
       });
-
       if (success) {
         navigation.navigate('SignIn');
-      } else if (error && !error.includes('cancel') && !error.includes('Cancel')) {
+      } else if (bioError && !bioError.includes('cancel') && !bioError.includes('Cancel')) {
         Alert.alert('Authentication Failed', 'Please try again.');
       }
-      // user tapped Cancel — do nothing silently
     } catch {
       Alert.alert('Error', 'Could not authenticate. Please try again.');
     }
   };
+
+  if (loading && !user) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#1E4080" />
+      </View>
+    );
+  }
+
+  const attendance = weeklyAttendance.length > 0
+    ? weeklyAttendance
+    : Array(6).fill({ date: '--', day: '--', in_time: '00:00', out_time: '00:00', total: '00:00' });
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -76,58 +71,44 @@ const HomeScreen = () => {
             <Text style={styles.avatarIcon}>👤</Text>
           </View>
         </View>
-        <Text style={styles.userName}>Patel Chinmay Mahendrabhai</Text>
-        <Text style={styles.userRole}>ERP Coordinator</Text>
+        <Text style={styles.userName}>{user?.name || '—'}</Text>
+        <Text style={styles.userRole}>{user?.designation || '—'}</Text>
 
         {/* Stats grid */}
         <View style={styles.statsGrid}>
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>Work Today</Text>
-            <Text style={styles.statValue}>04:50</Text>
+            <Text style={styles.statValue}>{stats?.work_today ?? '00:00'}</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>Worked This Week</Text>
-            <Text style={styles.statValue}>0</Text>
+            <Text style={styles.statValue}>{stats?.worked_this_week ?? '00:00'}</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>Leaves Available</Text>
-            <Text style={styles.statValue}>0.0</Text>
+            <Text style={styles.statValue}>{stats?.leaves_available ?? '0.0'}</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>Leaves Utilised</Text>
-            <Text style={styles.statValue}>0</Text>
+            <Text style={styles.statValue}>{stats?.leaves_utilised ?? '0'}</Text>
           </View>
         </View>
       </View>
 
       {/* ── Action Buttons ── */}
       <View style={styles.actionRow}>
-        <TouchableOpacity
-          style={[styles.actionBtn, styles.signInBtn]}
-          onPress={authenticateAndNavigate}
-          activeOpacity={0.8}
-        >
+        <TouchableOpacity style={[styles.actionBtn, styles.signInBtn]} onPress={authenticateAndNavigate} activeOpacity={0.8}>
           <Text style={styles.actionBtnIcon}>↩</Text>
           <Text style={styles.actionBtnText}>SIGN IN</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionBtn, styles.signOutBtn]}
-          onPress={authenticateAndNavigate}
-          activeOpacity={0.8}
-        >
+        <TouchableOpacity style={[styles.actionBtn, styles.signOutBtn]} onPress={authenticateAndNavigate} activeOpacity={0.8}>
           <Text style={styles.actionBtnIcon}>↪</Text>
           <Text style={styles.actionBtnText}>SIGN OUT</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionBtn, styles.leaveBtn]}
-          activeOpacity={0.8}
-          onPress={() => navigation.navigate('Leave')}
-        >
+        <TouchableOpacity style={[styles.actionBtn, styles.leaveBtn]} activeOpacity={0.8} onPress={() => navigation.navigate('Leave')}>
           <Text style={styles.actionBtnIcon}>📅</Text>
           <Text style={styles.actionBtnText}>APPLY LEAVE</Text>
         </TouchableOpacity>
@@ -140,11 +121,11 @@ const HomeScreen = () => {
           {/* Header */}
           <View style={styles.tableRow}>
             <Text style={[styles.tableCell, styles.tableHeader, styles.labelCol]}>Date</Text>
-            {weekDates.map((d, i) => (
+            {attendance.map((d, i) => (
               <View key={i} style={[styles.tableCell, styles.dateCol]}>
-                <Text style={styles.tableHeader}>{d.month}</Text>
-                <Text style={styles.tableHeader}>{d.date}</Text>
-                <Text style={styles.tableHeader}>{d.label}</Text>
+                <Text style={styles.tableHeader}>{d.date?.split(' ')[1] || '--'}</Text>
+                <Text style={styles.tableHeader}>{d.date?.split(' ')[0] || '--'}</Text>
+                <Text style={styles.tableHeader}>{d.day || '--'}</Text>
               </View>
             ))}
           </View>
@@ -152,23 +133,23 @@ const HomeScreen = () => {
           {/* In row */}
           <View style={[styles.tableRow, styles.rowBg]}>
             <Text style={[styles.tableCell, styles.labelCol, styles.rowLabel]}>In</Text>
-            {attendanceData.map((a, i) => (
-              <Text key={i} style={[styles.tableCell, styles.dateCol, styles.timeText]}>{a.in}</Text>
+            {attendance.map((a, i) => (
+              <Text key={i} style={[styles.tableCell, styles.dateCol, styles.timeText]}>{a.in_time}</Text>
             ))}
           </View>
 
           {/* Out row */}
           <View style={styles.tableRow}>
             <Text style={[styles.tableCell, styles.labelCol, styles.rowLabel]}>Out</Text>
-            {attendanceData.map((a, i) => (
-              <Text key={i} style={[styles.tableCell, styles.dateCol, styles.timeText]}>{a.out}</Text>
+            {attendance.map((a, i) => (
+              <Text key={i} style={[styles.tableCell, styles.dateCol, styles.timeText]}>{a.out_time}</Text>
             ))}
           </View>
 
           {/* Total row */}
           <View style={[styles.tableRow, styles.totalRow]}>
             <Text style={[styles.tableCell, styles.labelCol, styles.totalLabel]}>Total</Text>
-            {attendanceData.map((a, i) => (
+            {attendance.map((a, i) => (
               <Text key={i} style={[styles.tableCell, styles.dateCol, styles.totalText]}>{a.total}</Text>
             ))}
           </View>
@@ -178,25 +159,24 @@ const HomeScreen = () => {
       {/* ── User Info ── */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>User Details</Text>
-
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>CODE</Text>
-          <Text style={styles.infoValue}>VRL0106</Text>
+          <Text style={styles.infoValue}>{user?.user_code || '—'}</Text>
         </View>
         <View style={styles.infoDivider} />
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>ORGANISATION</Text>
-          <Text style={styles.infoValue}>Vistara Realty LLP</Text>
+          <Text style={styles.infoValue}>{user?.organisation || '—'}</Text>
         </View>
         <View style={styles.infoDivider} />
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>DEPARTMENT</Text>
-          <Text style={styles.infoValue}>Management</Text>
+          <Text style={styles.infoValue}>{user?.department || '—'}</Text>
         </View>
         <View style={styles.infoDivider} />
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>DESIGNATION</Text>
-          <Text style={styles.infoValue}>ERP Coordinator</Text>
+          <Text style={styles.infoValue}>{user?.designation || '—'}</Text>
         </View>
       </View>
 
