@@ -136,4 +136,24 @@ export default StyleSheet.create({
     tintColor: '#CCCCCC',
     marginTop: width * 0.02,
   },
+
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: width * 0.1,
+  },
+  emptyContainer: {
+    flex: 1,
+  },
+  errorText: {
+    fontSize: width * 0.035,
+    color: '#C62828',
+    textAlign: 'center',
+  },
+  emptyText: {
+    fontSize: width * 0.035,
+    color: '#888888',
+    textAlign: 'center',
+  },
 });

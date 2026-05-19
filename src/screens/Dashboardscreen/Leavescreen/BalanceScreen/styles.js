@@ -87,4 +87,21 @@ export default StyleSheet.create({
     fontWeight: '500',
     color: COLORS.text,
   },
+
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: width * 0.1,
+  },
+  errorText: {
+    fontSize: width * 0.035,
+    color: '#C62828',
+    textAlign: 'center',
+  },
+  emptyText: {
+    fontSize: width * 0.035,
+    color: '#888888',
+    textAlign: 'center',
+  },
 });

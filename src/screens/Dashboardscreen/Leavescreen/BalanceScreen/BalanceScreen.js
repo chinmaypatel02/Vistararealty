@@ -1,23 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchLeaveBalance } from '../../../../redux/actions/leaveBalanceActions';
 import styles from './styles';
-
-const BALANCE_DATA = [
-  { id: '1', date: '2 Jan 2026 5:30 AM',   description: 'Monthly Credit', leaveType: 'Paid Leave',    change: +1.5, balance: 3   },
-  { id: '2', date: '1 Dec 2025 5:30 AM',   description: 'Monthly Credit', leaveType: 'Paid Leave',    change: +1.5, balance: 1.5 },
-  { id: '3', date: '17 Nov 2025 5:30 AM',  description: 'Leave Applied',  leaveType: 'Sick Leave',    change: -1.5, balance: 0   },
-  { id: '4', date: '1 Nov 2025 5:30 AM',   description: 'Monthly Credit', leaveType: 'Paid Leave',    change: +1.5, balance: 1.5 },
-  { id: '5', date: '24 Oct 2025 5:30 AM',  description: 'Leave Applied',  leaveType: 'Casual Leave',  change: -3,   balance: 0   },
-  { id: '6', date: '23 Oct 2025 5:30 AM',  description: 'Leave Applied',  leaveType: 'Casual Leave',  change: -1,   balance: 3   },
-  { id: '7', date: '1 Oct 2025 5:30 AM',   description: 'Monthly Credit', leaveType: 'Paid Leave',    change: +1.5, balance: 4   },
-  { id: '8', date: '30 Sept 2025 5:30 AM', description: 'Monthly Credit', leaveType: 'Paid Leave',    change: +1.5, balance: 2.5 },
-  { id: '9', date: '10 Sept 2025 5:30 AM', description: 'Leave Applied',  leaveType: 'Sick Leave',    change: -1,   balance: 1   },
-  { id: '10',date: '1 Sept 2025 5:30 AM',  description: 'Monthly Credit', leaveType: 'Paid Leave',    change: +1.5, balance: 2   },
-];
 
 const TableHeader = () => (
   <View style={styles.tableHeader}>
@@ -33,7 +23,7 @@ const BalanceRow = ({ item }) => {
     <View style={styles.row}>
       <View style={styles.dateCol}>
         <Text style={styles.dateText}>{item.date}</Text>
-        <Text style={styles.leaveTypeText}>{item.leaveType}</Text>
+        <Text style={styles.leaveTypeText}>{item.leave_type}</Text>
         <Text style={styles.descriptionText}>{item.description}</Text>
       </View>
       <Text style={[styles.changeCell, styles.changeCol, isPositive ? styles.positive : styles.negative]}>
@@ -45,15 +35,43 @@ const BalanceRow = ({ item }) => {
 };
 
 const BalanceScreen = () => {
+  const dispatch = useDispatch();
+  const { balanceLoading, balanceData, balanceError } = useSelector((s) => s.leaveBalance);
+
+  useEffect(() => {
+    dispatch(fetchLeaveBalance());
+  }, []);
+
+  if (balanceLoading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#1E4080" />
+      </View>
+    );
+  }
+
+  if (balanceError) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>{balanceError}</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <TableHeader />
       <FlatList
-        data={BALANCE_DATA}
-        keyExtractor={(item) => item.id}
+        data={balanceData}
+        keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => <BalanceRow item={item} />}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListEmptyComponent={
+          <View style={styles.centered}>
+            <Text style={styles.emptyText}>No transactions found.</Text>
+          </View>
+        }
       />
     </View>
   );

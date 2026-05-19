@@ -1,38 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
   SectionList,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchLeaveHistory } from '../../../../redux/actions/leaveHistoryActions';
 import images from '../../../../constants/images';
 import styles from './styles';
-
-const HISTORY_DATA = [
-  {
-    month: 'May 2026',
-    data: [
-      { id: '1', name: 'Kishan Sadhariya', avatar: null, session: 'Full Day',     date: 'Tue, May 5', leaveType: 'Casual Leave', status: 'Approved' },
-      { id: '2', name: 'Kishan Sadhariya', avatar: null, session: 'First Half',   date: 'Mon, May 4', leaveType: 'Sick Leave',   status: 'Pending'  },
-      { id: '3', name: 'Kishan Sadhariya', avatar: null, session: 'Second Half',  date: 'Mon, May 4', leaveType: 'Paid Leave',   status: 'Approved' },
-    ],
-  },
-  {
-    month: 'March 2026',
-    data: [
-      { id: '4', name: 'Kishan Sadhariya', avatar: null, session: 'Full Day',    date: 'Mon, Mar 10', leaveType: 'Casual Leave', status: 'Approved' },
-      { id: '5', name: 'Kishan Sadhariya', avatar: null, session: 'Full Day',    date: 'Fri, Mar 7',  leaveType: 'Sick Leave',   status: 'Rejected' },
-    ],
-  },
-  {
-    month: 'January 2026',
-    data: [
-      { id: '6', name: 'Kishan Sadhariya', avatar: null, session: 'First Half',  date: 'Wed, Jan 15', leaveType: 'Paid Leave',   status: 'Approved' },
-      { id: '7', name: 'Kishan Sadhariya', avatar: null, session: 'Full Day',    date: 'Mon, Jan 6',  leaveType: 'Casual Leave', status: 'Pending'  },
-    ],
-  },
-];
 
 const getStatusStyle = (status) => {
   switch (status) {
@@ -68,7 +46,6 @@ const AvatarPlaceholder = ({ name }) => {
 
 const LeaveCard = ({ item }) => (
   <TouchableOpacity style={styles.card} activeOpacity={0.85}>
-    {/* Left — Avatar + Name */}
     <View style={styles.avatarSection}>
       {item.avatar
         ? <Image source={{ uri: item.avatar }} style={styles.avatar} />
@@ -77,14 +54,12 @@ const LeaveCard = ({ item }) => (
       <Text style={styles.nameText} numberOfLines={2}>{item.name}</Text>
     </View>
 
-    {/* Middle — Session, Date, Leave Type */}
     <View style={styles.infoSection}>
       <Text style={styles.sessionText}>{item.session}</Text>
       <Text style={styles.dateText}>{item.date}</Text>
-      <Text style={styles.leaveTypeText}>{item.leaveType}</Text>
+      <Text style={styles.leaveTypeText}>{item.leave_type}</Text>
     </View>
 
-    {/* Right — Status badge + Chevron */}
     <View style={styles.rightSection}>
       <View style={[styles.statusBadge, getStatusStyle(item.status)]}>
         <Text style={[styles.statusText, getStatusTextStyle(item.status)]}>
@@ -96,18 +71,51 @@ const LeaveCard = ({ item }) => (
   </TouchableOpacity>
 );
 
-const HistoryScreen = () => (
-  <SectionList
-    sections={HISTORY_DATA}
-    keyExtractor={(item) => item.id}
-    renderItem={({ item }) => <LeaveCard item={item} />}
-    renderSectionHeader={({ section }) => (
-      <Text style={styles.monthHeader}>{section.month}</Text>
-    )}
-    contentContainerStyle={styles.listContent}
-    showsVerticalScrollIndicator={false}
-    stickySectionHeadersEnabled={false}
-  />
-);
+const HistoryScreen = () => {
+  const dispatch = useDispatch();
+  const { historyLoading, historyData, historyError } = useSelector((s) => s.leaveHistory);
+
+  useEffect(() => {
+    dispatch(fetchLeaveHistory());
+  }, []);
+
+  if (historyLoading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#1E4080" />
+      </View>
+    );
+  }
+
+  if (historyError) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>{historyError}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <SectionList
+      sections={historyData}
+      keyExtractor={(item) => String(item.id)}
+      renderItem={({ item }) => <LeaveCard item={item} />}
+      renderSectionHeader={({ section }) => (
+        <Text style={styles.monthHeader}>{section.month}</Text>
+      )}
+      contentContainerStyle={[
+        styles.listContent,
+        historyData.length === 0 && styles.emptyContainer,
+      ]}
+      showsVerticalScrollIndicator={false}
+      stickySectionHeadersEnabled={false}
+      ListEmptyComponent={
+        <View style={styles.centered}>
+          <Text style={styles.emptyText}>No leave history found.</Text>
+        </View>
+      }
+    />
+  );
+};
 
 export default HistoryScreen;

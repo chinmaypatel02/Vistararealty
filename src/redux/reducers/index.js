@@ -1,10 +1,16 @@
 import { combineReducers } from 'redux';
-import authReducer from './authReducer';
-import dashboardReducer from './dashboardReducer';
+import authReducer          from './authReducer';
+import dashboardReducer     from './dashboardReducer';
+import requestLeaveReducer  from './requestLeaveReducer';
+import leaveBalanceReducer  from './leaveBalanceReducer';
+import leaveHistoryReducer  from './leaveHistoryReducer';
 
 const rootReducer = combineReducers({
-  auth:      authReducer,
-  dashboard: dashboardReducer,
+  auth:         authReducer,
+  dashboard:    dashboardReducer,
+  requestLeave: requestLeaveReducer,
+  leaveBalance: leaveBalanceReducer,
+  leaveHistory: leaveHistoryReducer,
 });
 
 export default rootReducer;

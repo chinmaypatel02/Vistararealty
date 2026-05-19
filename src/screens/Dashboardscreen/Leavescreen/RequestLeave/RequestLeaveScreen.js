@@ -11,12 +11,16 @@ import {
   Modal,
   Animated,
   Dimensions,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import { COLORS } from '../../../../constants/theme';
 import images from '../../../../constants/images';
+import { requestLeave, resetRequestLeave } from '../../../../redux/actions/requestLeaveActions';
 import styles from './styles';
 
 const { height } = Dimensions.get('window');
@@ -77,19 +81,59 @@ const LeaveBottomSheet = ({ visible, selected, onSelect, onClose }) => {
   );
 };
 
+const LEAVE_TYPE_MAP = {
+  'Paid Leave':    'paid_leave',
+  'Sick Leave':    'sick_leave',
+  'Casual Leave':  'casual_leave',
+  'LOP':           'lop',
+};
+
+const toISODate = (d) =>
+  `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+
 const RequestLeaveScreen = () => {
   const navigation = useNavigation();
+  const dispatch   = useDispatch();
+  const { requestLoading, requestSuccess, requestError } = useSelector((s) => s.requestLeave);
 
-  const [workType,       setWorkType]       = useState('Leave');
-  const [selectedLeave,  setSelectedLeave]  = useState('Casual Leave');
-  const [dayType,        setDayType]        = useState('Full Day');
-  const [halfMode,       setHalfMode]       = useState('First Half');
-  const [startDate,      setStartDate]      = useState(new Date());
-  const [endDate,        setEndDate]        = useState(new Date());
-  const [description,    setDescription]    = useState('');
-  const [showSheet,      setShowSheet]      = useState(false);
+  const [workType,        setWorkType]        = useState('Leave');
+  const [selectedLeave,   setSelectedLeave]   = useState('Casual Leave');
+  const [dayType,         setDayType]         = useState('Full Day');
+  const [halfMode,        setHalfMode]        = useState('First Half');
+  const [startDate,       setStartDate]       = useState(new Date());
+  const [endDate,         setEndDate]         = useState(new Date());
+  const [description,     setDescription]     = useState('');
+  const [showSheet,       setShowSheet]       = useState(false);
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker,   setShowEndPicker]   = useState(false);
+
+  React.useEffect(() => {
+    if (requestSuccess) {
+      Alert.alert('Success', 'Leave request submitted successfully.', [
+        { text: 'OK', onPress: () => { dispatch(resetRequestLeave()); navigation.goBack(); } },
+      ]);
+    }
+    if (requestError) {
+      Alert.alert('Error', requestError, [
+        { text: 'OK', onPress: () => dispatch(resetRequestLeave()) },
+      ]);
+    }
+  }, [requestSuccess, requestError]);
+
+  const handleSubmit = () => {
+    const payload = {
+      work_type:  workType.toLowerCase(),
+      leave_type: LEAVE_TYPE_MAP[selectedLeave],
+      day_type:   dayType === 'Full Day' ? 'full_day' : 'half_day',
+      session:    dayType === 'Half Day'
+                    ? (halfMode === 'First Half' ? 'first_half' : 'second_half')
+                    : null,
+      from_date:  toISODate(startDate),
+      to_date:    dayType === 'Full Day' ? toISODate(endDate) : null,
+      description,
+    };
+    dispatch(requestLeave(payload));
+  };
 
   const formatDate = (d) =>
     `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1)
@@ -228,8 +272,16 @@ const RequestLeaveScreen = () => {
 
       {/* Submit */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.submitBtn} activeOpacity={0.85}>
-          <Text style={styles.submitText}>Submit</Text>
+        <TouchableOpacity
+          style={styles.submitBtn}
+          activeOpacity={0.85}
+          onPress={handleSubmit}
+          disabled={requestLoading}
+        >
+          {requestLoading
+            ? <ActivityIndicator color="#FFFFFF" />
+            : <Text style={styles.submitText}>Submit</Text>
+          }
         </TouchableOpacity>
       </View>
 
