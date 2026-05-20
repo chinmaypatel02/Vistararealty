@@ -11,6 +11,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLeaveHistory } from '../../../../redux/actions/leaveHistoryActions';
 import { updateLeaveStatus, resetLeaveAction } from '../../../../redux/actions/leaveActionActions';
+import { triggerBalanceRefresh } from '../../../../redux/actions/leaveBalanceActions';
 import images from '../../../../constants/images';
 import styles from './styles';
 import LeaveDetailModal from './LeaveDetailModal';
@@ -94,6 +95,7 @@ const HistoryScreen = () => {
       setSelectedLeave(null);
       dispatch(resetLeaveAction());
       dispatch(fetchLeaveHistory());
+      if (actionSuccess.status === 'approved') dispatch(triggerBalanceRefresh());
     }
   }, [actionSuccess]);
 

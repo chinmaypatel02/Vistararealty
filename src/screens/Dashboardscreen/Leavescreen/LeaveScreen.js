@@ -10,8 +10,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TabView, SceneMap } from 'react-native-tab-view';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 import BalanceScreen from './BalanceScreen/BalanceScreen';
 import HistoryScreen from './HistoryScreen/HistoryScreen';
+import { triggerBalanceRefresh } from '../../../redux/actions/leaveBalanceActions';
 import { COLORS } from '../../../constants/theme';
 import images from '../../../constants/images';
 import styles from './styles';
@@ -51,7 +53,13 @@ const CustomTabBar = ({ navigationState, onTabPress }) => (
 
 const LeaveScreen = () => {
   const navigation = useNavigation();
+  const dispatch   = useDispatch();
   const [index, setIndex] = useState(0);
+
+  const handleIndexChange = (newIndex) => {
+    setIndex(newIndex);
+    if (newIndex === 0) dispatch(triggerBalanceRefresh());
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -70,12 +78,12 @@ const LeaveScreen = () => {
       <TabView
         navigationState={{ index, routes: ROUTES }}
         renderScene={renderScene}
-        onIndexChange={setIndex}
+        onIndexChange={handleIndexChange}
         initialLayout={{ width }}
         renderTabBar={(props) => (
           <CustomTabBar
             navigationState={props.navigationState}
-            onTabPress={setIndex}
+            onTabPress={handleIndexChange}
           />
         )}
         style={styles.content}

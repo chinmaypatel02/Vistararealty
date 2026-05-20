@@ -4,7 +4,10 @@ import {
   LEAVE_BALANCE_REQUEST,
   LEAVE_BALANCE_SUCCESS,
   LEAVE_BALANCE_FAILURE,
+  LEAVE_BALANCE_REFRESH,
 } from '../types/leaveBalanceTypes';
+
+export const triggerBalanceRefresh = () => ({ type: LEAVE_BALANCE_REFRESH });
 
 export const fetchLeaveBalance = () => async (dispatch) => {
   dispatch({ type: LEAVE_BALANCE_REQUEST });

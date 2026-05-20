@@ -22,7 +22,7 @@ const BalanceRow = ({ item }) => {
   return (
     <View style={styles.row}>
       <View style={styles.dateCol}>
-        <Text style={styles.dateText}>{item.date}</Text>
+        <Text style={styles.dateText}>{item.leave_date ?? item.date}</Text>
         <Text style={styles.leaveTypeText}>{item.leave_type}</Text>
         <Text style={styles.descriptionText}>{item.description}</Text>
       </View>
@@ -36,13 +36,13 @@ const BalanceRow = ({ item }) => {
 
 const BalanceScreen = () => {
   const dispatch = useDispatch();
-  const { balanceLoading, balanceData, balanceError } = useSelector((s) => s.leaveBalance);
+  const { balanceLoading, balanceData, balanceError, refreshTrigger } = useSelector((s) => s.leaveBalance);
 
   useEffect(() => {
     dispatch(fetchLeaveBalance());
-  }, []);
+  }, [refreshTrigger]);
 
-  if (balanceLoading) {
+  if (balanceLoading && balanceData.length === 0) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#1E4080" />
