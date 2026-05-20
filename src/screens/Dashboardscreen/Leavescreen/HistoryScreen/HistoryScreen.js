@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,11 +6,14 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLeaveHistory } from '../../../../redux/actions/leaveHistoryActions';
+import { updateLeaveStatus, resetLeaveAction } from '../../../../redux/actions/leaveActionActions';
 import images from '../../../../constants/images';
 import styles from './styles';
+import LeaveDetailModal from './LeaveDetailModal';
 
 const getStatusStyle = (status) => {
   switch (status) {
@@ -44,8 +47,8 @@ const AvatarPlaceholder = ({ name }) => {
   );
 };
 
-const LeaveCard = ({ item }) => (
-  <TouchableOpacity style={styles.card} activeOpacity={0.85}>
+const LeaveCard = ({ item, onPress }) => (
+  <TouchableOpacity style={styles.card} activeOpacity={0.85} onPress={() => onPress(item)}>
     <View style={styles.avatarSection}>
       {item.avatar
         ? <Image source={{ uri: item.avatar }} style={styles.avatar} />
@@ -74,10 +77,51 @@ const LeaveCard = ({ item }) => (
 const HistoryScreen = () => {
   const dispatch = useDispatch();
   const { historyLoading, historyData, historyError } = useSelector((s) => s.leaveHistory);
+  const { actionLoading, actionSuccess, actionError }  = useSelector((s) => s.leaveAction);
+
+  const [selectedLeave, setSelectedLeave] = useState(null);
+  const [modalVisible,  setModalVisible]  = useState(false);
 
   useEffect(() => {
     dispatch(fetchLeaveHistory());
   }, []);
+
+  useEffect(() => {
+    if (actionSuccess) {
+      const label = actionSuccess.status === 'approved' ? 'Approved' : 'Rejected';
+      Alert.alert('Success', `Leave ${label} successfully.`);
+      setModalVisible(false);
+      setSelectedLeave(null);
+      dispatch(resetLeaveAction());
+      dispatch(fetchLeaveHistory());
+    }
+  }, [actionSuccess]);
+
+  useEffect(() => {
+    if (actionError) {
+      Alert.alert('Error', actionError);
+      dispatch(resetLeaveAction());
+    }
+  }, [actionError]);
+
+  const handleCardPress = (item) => {
+    setSelectedLeave(item);
+    setModalVisible(true);
+  };
+
+  const handleApprove = () => {
+    if (selectedLeave) dispatch(updateLeaveStatus(selectedLeave.id, 'approved'));
+  };
+
+  const handleReject = () => {
+    if (selectedLeave) dispatch(updateLeaveStatus(selectedLeave.id, 'rejected'));
+  };
+
+  const handleClose = () => {
+    if (actionLoading) return;
+    setModalVisible(false);
+    setSelectedLeave(null);
+  };
 
   if (historyLoading) {
     return (
@@ -96,25 +140,36 @@ const HistoryScreen = () => {
   }
 
   return (
-    <SectionList
-      sections={historyData}
-      keyExtractor={(item) => String(item.id)}
-      renderItem={({ item }) => <LeaveCard item={item} />}
-      renderSectionHeader={({ section }) => (
-        <Text style={styles.monthHeader}>{section.month}</Text>
-      )}
-      contentContainerStyle={[
-        styles.listContent,
-        historyData.length === 0 && styles.emptyContainer,
-      ]}
-      showsVerticalScrollIndicator={false}
-      stickySectionHeadersEnabled={false}
-      ListEmptyComponent={
-        <View style={styles.centered}>
-          <Text style={styles.emptyText}>No leave history found.</Text>
-        </View>
-      }
-    />
+    <>
+      <SectionList
+        sections={historyData}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => <LeaveCard item={item} onPress={handleCardPress} />}
+        renderSectionHeader={({ section }) => (
+          <Text style={styles.monthHeader}>{section.month}</Text>
+        )}
+        contentContainerStyle={[
+          styles.listContent,
+          historyData.length === 0 && styles.emptyContainer,
+        ]}
+        showsVerticalScrollIndicator={false}
+        stickySectionHeadersEnabled={false}
+        ListEmptyComponent={
+          <View style={styles.centered}>
+            <Text style={styles.emptyText}>No leave history found.</Text>
+          </View>
+        }
+      />
+
+      <LeaveDetailModal
+        visible={modalVisible}
+        leave={selectedLeave}
+        onClose={handleClose}
+        onApprove={handleApprove}
+        onReject={handleReject}
+        actionLoading={actionLoading}
+      />
+    </>
   );
 };
 
