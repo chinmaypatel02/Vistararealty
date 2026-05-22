@@ -6,12 +6,12 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLeaveHistory } from '../../../../redux/actions/leaveHistoryActions';
 import { updateLeaveStatus, resetLeaveAction } from '../../../../redux/actions/leaveActionActions';
 import { triggerBalanceRefresh } from '../../../../redux/actions/leaveBalanceActions';
+import Toast from '../../../../components/Toast';
 import images from '../../../../constants/images';
 import styles from './styles';
 import LeaveDetailModal from './LeaveDetailModal';
@@ -82,6 +82,13 @@ const HistoryScreen = () => {
 
   const [selectedLeave, setSelectedLeave] = useState(null);
   const [modalVisible,  setModalVisible]  = useState(false);
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
+
+  const showToast = (message, type = 'success') =>
+    setToast({ visible: true, message, type });
+
+  const hideToast = () =>
+    setToast((prev) => ({ ...prev, visible: false }));
 
   useEffect(() => {
     dispatch(fetchLeaveHistory());
@@ -89,19 +96,19 @@ const HistoryScreen = () => {
 
   useEffect(() => {
     if (actionSuccess) {
-      const label = actionSuccess.status === 'approved' ? 'Approved' : 'Rejected';
-      Alert.alert('Success', `Leave ${label} successfully.`);
+      const isApproved = actionSuccess.status === 'approved';
+      showToast(isApproved ? 'Leave approved successfully.' : 'Leave rejected successfully.', isApproved ? 'success' : 'error');
       setModalVisible(false);
       setSelectedLeave(null);
       dispatch(resetLeaveAction());
       dispatch(fetchLeaveHistory());
-      if (actionSuccess.status === 'approved') dispatch(triggerBalanceRefresh());
+      if (isApproved) dispatch(triggerBalanceRefresh());
     }
   }, [actionSuccess]);
 
   useEffect(() => {
     if (actionError) {
-      Alert.alert('Error', actionError);
+      showToast(actionError, 'error');
       dispatch(resetLeaveAction());
     }
   }, [actionError]);
@@ -142,7 +149,7 @@ const HistoryScreen = () => {
   }
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <SectionList
         sections={historyData}
         keyExtractor={(item) => String(item.id)}
@@ -171,7 +178,14 @@ const HistoryScreen = () => {
         onReject={handleReject}
         actionLoading={actionLoading}
       />
-    </>
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={hideToast}
+      />
+    </View>
   );
 };
 
