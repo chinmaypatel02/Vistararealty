@@ -104,4 +104,8 @@ export default StyleSheet.create({
     color: '#888888',
     textAlign: 'center',
   },
+  footerLoader: {
+    paddingVertical: width * 0.05,
+    alignItems: 'center',
+  },
 });

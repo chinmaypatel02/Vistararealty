@@ -17,6 +17,8 @@ const TableHeader = () => (
   </View>
 );
 
+const Separator = () => <View style={styles.separator} />;
+
 const BalanceRow = ({ item }) => {
   const isPositive = item.change > 0;
   return (
@@ -36,11 +38,33 @@ const BalanceRow = ({ item }) => {
 
 const BalanceScreen = () => {
   const dispatch = useDispatch();
-  const { balanceLoading, balanceData, balanceError, refreshTrigger } = useSelector((s) => s.leaveBalance);
+  const {
+    balanceLoading,
+    balanceLoadingMore,
+    balanceData,
+    balanceError,
+    balancePage,
+    balanceHasMore,
+    refreshTrigger,
+  } = useSelector((s) => s.leaveBalance);
 
   useEffect(() => {
-    dispatch(fetchLeaveBalance());
-  }, [refreshTrigger]);
+    dispatch(fetchLeaveBalance(1));
+  }, [dispatch, refreshTrigger]);
+
+  const handleLoadMore = () => {
+    if (!balanceHasMore || balanceLoading || balanceLoadingMore) return;
+    dispatch(fetchLeaveBalance(balancePage + 1));
+  };
+
+  const renderFooter = () => {
+    if (!balanceLoadingMore) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color="#1E4080" />
+      </View>
+    );
+  };
 
   if (balanceLoading && balanceData.length === 0) {
     return (
@@ -66,7 +90,10 @@ const BalanceScreen = () => {
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => <BalanceRow item={item} />}
         showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ItemSeparatorComponent={Separator}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.4}
+        ListFooterComponent={renderFooter}
         ListEmptyComponent={
           <View style={styles.centered}>
             <Text style={styles.emptyText}>No transactions found.</Text>

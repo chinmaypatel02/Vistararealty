@@ -77,7 +77,14 @@ const LeaveCard = ({ item, onPress }) => (
 
 const HistoryScreen = () => {
   const dispatch = useDispatch();
-  const { historyLoading, historyData, historyError } = useSelector((s) => s.leaveHistory);
+  const {
+    historyLoading,
+    historyLoadingMore,
+    historyData,
+    historyError,
+    historyPage,
+    historyHasMore,
+  } = useSelector((s) => s.leaveHistory);
   const { actionLoading, actionSuccess, actionError }  = useSelector((s) => s.leaveAction);
 
   const [selectedLeave, setSelectedLeave] = useState(null);
@@ -91,8 +98,8 @@ const HistoryScreen = () => {
     setToast((prev) => ({ ...prev, visible: false }));
 
   useEffect(() => {
-    dispatch(fetchLeaveHistory());
-  }, []);
+    dispatch(fetchLeaveHistory(1));
+  }, [dispatch]);
 
   useEffect(() => {
     if (actionSuccess) {
@@ -101,17 +108,17 @@ const HistoryScreen = () => {
       setModalVisible(false);
       setSelectedLeave(null);
       dispatch(resetLeaveAction());
-      dispatch(fetchLeaveHistory());
+      dispatch(fetchLeaveHistory(1));
       if (isApproved) dispatch(triggerBalanceRefresh());
     }
-  }, [actionSuccess]);
+  }, [actionSuccess, dispatch]);
 
   useEffect(() => {
     if (actionError) {
       showToast(actionError, 'error');
       dispatch(resetLeaveAction());
     }
-  }, [actionError]);
+  }, [actionError, dispatch]);
 
   const handleCardPress = (item) => {
     setSelectedLeave(item);
@@ -132,7 +139,21 @@ const HistoryScreen = () => {
     setSelectedLeave(null);
   };
 
-  if (historyLoading) {
+  const handleLoadMore = () => {
+    if (!historyHasMore || historyLoading || historyLoadingMore) return;
+    dispatch(fetchLeaveHistory(historyPage + 1));
+  };
+
+  const renderFooter = () => {
+    if (!historyLoadingMore) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color="#1E4080" />
+      </View>
+    );
+  };
+
+  if (historyLoading && historyData.length === 0) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#1E4080" />
@@ -149,7 +170,7 @@ const HistoryScreen = () => {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       <SectionList
         sections={historyData}
         keyExtractor={(item) => String(item.id)}
@@ -163,6 +184,9 @@ const HistoryScreen = () => {
         ]}
         showsVerticalScrollIndicator={false}
         stickySectionHeadersEnabled={false}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.4}
+        ListFooterComponent={renderFooter}
         ListEmptyComponent={
           <View style={styles.centered}>
             <Text style={styles.emptyText}>No leave history found.</Text>

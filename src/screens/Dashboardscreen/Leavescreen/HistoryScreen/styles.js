@@ -4,6 +4,9 @@ import { COLORS } from '../../../../constants/theme';
 const { width } = Dimensions.get('window');
 
 export default StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   listContent: {
     paddingHorizontal: width * 0.04,
     paddingBottom: width * 0.2,
@@ -155,5 +158,9 @@ export default StyleSheet.create({
     fontSize: width * 0.035,
     color: '#888888',
     textAlign: 'center',
+  },
+  footerLoader: {
+    paddingVertical: width * 0.05,
+    alignItems: 'center',
   },
 });

@@ -9,11 +9,13 @@ import {
 
 export const triggerBalanceRefresh = () => ({ type: LEAVE_BALANCE_REFRESH });
 
-export const fetchLeaveBalance = () => async (dispatch) => {
-  dispatch({ type: LEAVE_BALANCE_REQUEST });
+const PAGE_SIZE = 20;
+
+export const fetchLeaveBalance = (page = 1) => async (dispatch) => {
+  dispatch({ type: LEAVE_BALANCE_REQUEST, meta: { page } });
   try {
     const token = await AsyncStorage.getItem('access_token');
-    const response = await fetch(`${BASE_URL}/api/attendance/leave-balance/`, {
+    const response = await fetch(`${BASE_URL}/api/attendance/leave-balance/?page=${page}&page_size=${PAGE_SIZE}`, {
       method:  'GET',
       headers: {
         'Content-Type':  'application/json',
@@ -24,7 +26,7 @@ export const fetchLeaveBalance = () => async (dispatch) => {
     if (response.ok) {
       console.log('✅ Leave Balance Fetch Success');
       console.log('📥 Response received:', JSON.stringify(data, null, 2));
-      dispatch({ type: LEAVE_BALANCE_SUCCESS, payload: data });
+      dispatch({ type: LEAVE_BALANCE_SUCCESS, payload: data, meta: { page } });
     } else {
       dispatch({ type: LEAVE_BALANCE_FAILURE, payload: data.detail || JSON.stringify(data) });
     }
