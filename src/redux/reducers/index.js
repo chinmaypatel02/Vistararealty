@@ -5,6 +5,7 @@ import requestLeaveReducer  from './requestLeaveReducer';
 import leaveBalanceReducer  from './leaveBalanceReducer';
 import leaveHistoryReducer  from './leaveHistoryReducer';
 import leaveActionReducer   from './leaveActionReducer';
+import presalesReducer      from './presalesReducer';
 
 const rootReducer = combineReducers({
   auth:         authReducer,
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   leaveBalance: leaveBalanceReducer,
   leaveHistory: leaveHistoryReducer,
   leaveAction:  leaveActionReducer,
+  presales:     presalesReducer,
 });
 
 export default rootReducer;

@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import styles from './styles';
 
 const MODULES = [
+  { name: 'Pre Sales',      screen: 'PreSales',    icon: '📈' },
   { name: 'Admin',          screen: 'Admin',       icon: '⚙️' },
   { name: 'Projects',       screen: 'Projects',    icon: '🏗️' },
   { name: 'Sites',          screen: 'Sites',       icon: '📍' },

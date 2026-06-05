@@ -20,6 +20,14 @@ import SettingsScreen from '../screens/Drawerscreen/Settingscreen/Settingscreen'
 import LeaveScreen from '../screens/Dashboardscreen/Leavescreen/LeaveScreen';
 import RequestLeaveScreen from '../screens/Dashboardscreen/Leavescreen/RequestLeave/RequestLeaveScreen';
 
+// Pre-Sales screens
+import PreSalesDashboard  from '../screens/PreSalesscreen/Dashboard/PreSalesDashboard';
+import PreSalesLeads      from '../screens/PreSalesscreen/Leads/LeadsScreen';
+import PreSalesLeadDetail from '../screens/PreSalesscreen/Leads/LeadDetailScreen';
+import PreSalesAddLead    from '../screens/PreSalesscreen/Leads/AddLeadScreen';
+import PreSalesProjects   from '../screens/PreSalesscreen/Projects/ProjectsScreen';
+import PreSalesAddProject from '../screens/PreSalesscreen/Projects/AddProjectScreen';
+
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -49,6 +57,14 @@ const AppNavigator = () => {
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Leave" component={LeaveScreen} />
         <Stack.Screen name="RequestLeave" component={RequestLeaveScreen} />
+
+        {/* Pre-Sales screens */}
+        <Stack.Screen name="PreSales"          component={PreSalesDashboard} />
+        <Stack.Screen name="PreSalesLeads"     component={PreSalesLeads} />
+        <Stack.Screen name="PreSalesLeadDetail" component={PreSalesLeadDetail} />
+        <Stack.Screen name="PreSalesAddLead"   component={PreSalesAddLead} />
+        <Stack.Screen name="PreSalesProjects"  component={PreSalesProjects} />
+        <Stack.Screen name="PreSalesAddProject" component={PreSalesAddProject} />
       </Stack.Navigator>
     </NavigationContainer>
   );
