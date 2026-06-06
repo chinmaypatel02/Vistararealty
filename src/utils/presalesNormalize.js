@@ -9,8 +9,9 @@ export const normalizeLead = (lead) => ({
   status:       lead.status || 'New',
   assignedTo:   lead.assigned_to_name || '',
   assignedToId: lead.assigned_to ? String(lead.assigned_to) : '',
-  budget:       lead.budget || '',
-  notes:        lead.notes || '',
+  budget:        lead.budget || '',
+  notes:         lead.notes || '',
+  nextFollowup:  lead.next_followup || null,
   timeAgo:      lead.time_ago || '',
   createdAt:    lead.created_at_str || '',
   activities:   (lead.activities || []).map((a) => ({

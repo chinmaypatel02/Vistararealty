@@ -11,4 +11,5 @@ export const PRESALES_ENDPOINTS = {
   leadDetail:     (id) => `${BASE_URL}/api/presales/leads/${id}/`,
   leadStatus:     (id) => `${BASE_URL}/api/presales/leads/${id}/status/`,
   leadTransfer:   (id) => `${BASE_URL}/api/presales/leads/${id}/transfer/`,
+  leadFollowup:   (id) => `${BASE_URL}/api/presales/leads/${id}/followup/`,
 };

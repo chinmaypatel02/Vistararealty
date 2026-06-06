@@ -4,6 +4,7 @@ import {
   StatusBar, Image, Modal, TextInput,
   Animated, KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,6 +14,7 @@ import images from '../../../constants/images';
 import { STATUS_META, STATUSES } from '../../../constants/presalesMockData';
 import { PRESALES_ENDPOINTS } from '../../../constants/api';
 import { normalizeLead } from '../../../utils/presalesNormalize';
+import { getFollowupInfo, formatFollowupDate, toApiDate } from '../../../utils/followupHelpers';
 import { fetchPresalesTeam } from '../../../redux/actions/presalesActions';
 import Toast from '../../../components/Toast';
 import TransferModal from './TransferModal';
@@ -126,10 +128,10 @@ const LeadDetailScreen = () => {
 
   const { data: teamMembers } = useSelector((s) => s.presales.team);
 
-  const [lead,          setLead]          = useState(initialLead);
-  const [transferModal, setTransferModal] = useState(false);
-  const [statusSheet,   setStatusSheet]   = useState({ visible: false, targetStatus: null, note: '' });
-  const [toast,         setToast]         = useState({ visible: false, message: '', type: 'success' });
+  const [lead,              setLead]              = useState(initialLead);
+  const [transferModal,     setTransferModal]     = useState(false);
+  const [statusSheet,       setStatusSheet]       = useState({ visible: false, targetStatus: null, note: '' });
+  const [toast,             setToast]             = useState({ visible: false, message: '', type: 'success' });
 
   useEffect(() => {
     if (teamMembers.length === 0) dispatch(fetchPresalesTeam());
@@ -196,7 +198,44 @@ const LeadDetailScreen = () => {
     }
   };
 
+  const openFollowupPicker = () => {
+    const current = lead.nextFollowup ? new Date(lead.nextFollowup) : new Date();
+    if (Platform.OS === 'android') {
+      DateTimePickerAndroid.open({
+        value:       current,
+        mode:        'date',
+        minimumDate: new Date(),
+        onChange:    async (event, date) => {
+          if (event.type !== 'set' || !date) return;
+          const { ok, data } = await apiCall(
+            PRESALES_ENDPOINTS.leadFollowup(lead.id), 'PATCH',
+            { next_followup: toApiDate(date) },
+          );
+          if (ok) {
+            setLead(normalizeLead(data));
+            showToast('Follow-up date updated.', 'success');
+          } else {
+            showToast(data.detail || 'Failed to update.', 'error');
+          }
+        },
+      });
+    } else {
+      setShowFollowupPicker(true);
+    }
+  };
+
+  const clearFollowup = async () => {
+    const { ok, data } = await apiCall(
+      PRESALES_ENDPOINTS.leadFollowup(lead.id), 'PATCH', { next_followup: null },
+    );
+    if (ok) {
+      setLead(normalizeLead(data));
+      showToast('Follow-up date cleared.', 'info');
+    }
+  };
+
   const meta = STATUS_META[lead.status] || STATUS_META.New;
+  const followupInfo = getFollowupInfo(lead.nextFollowup);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -265,6 +304,37 @@ const LeadDetailScreen = () => {
             })}
           </View>
           <Text style={styles.statusHint}>Tap any status to update with a remark</Text>
+        </View>
+
+        {/* Follow-up */}
+        <View style={styles.sectionCard}>
+          <View style={styles.followupHeader}>
+            <Text style={styles.sectionCardTitle}>Next Follow-up</Text>
+            <TouchableOpacity onPress={openFollowupPicker} activeOpacity={0.8}>
+              <Text style={styles.followupEditBtn}>
+                {lead.nextFollowup ? 'Change' : '+ Set Date'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {lead.nextFollowup ? (
+            <View style={[styles.followupBadge, { backgroundColor: followupInfo?.bg || '#F4F6FA' }]}>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.followupStatus, { color: followupInfo?.color || '#555' }]}>
+                  {followupInfo?.label}
+                </Text>
+                <Text style={styles.followupDate}>
+                  {formatFollowupDate(lead.nextFollowup)}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={clearFollowup} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Text style={{ fontSize: 16, color: '#AAA' }}>✕</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <Text style={styles.followupEmpty}>No follow-up scheduled</Text>
+          )}
+
         </View>
 
         {/* Contact Info */}

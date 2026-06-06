@@ -4,6 +4,7 @@ import {
   StatusBar, Image, TextInput, Modal, FlatList,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
+import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,6 +14,7 @@ import images from '../../../constants/images';
 import { SOURCES, STATUSES } from '../../../constants/presalesMockData';
 import { PRESALES_ENDPOINTS } from '../../../constants/api';
 import { fetchPresalesProjects } from '../../../redux/actions/presalesActions';
+import { toApiDate, formatFollowupDate } from '../../../utils/followupHelpers';
 import Toast from '../../../components/Toast';
 import styles from './styles';
 
@@ -68,8 +70,10 @@ const AddLeadScreen = () => {
     name: '', phone: '', email: '', project: null,
     source: '', status: 'New', budget: '', notes: '',
   });
-  const [submitting, setSubmitting] = useState(false);
-  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
+  const [followupDate,     setFollowupDate]     = useState(null);
+  const [showDatePicker,   setShowDatePicker]   = useState(false);
+  const [submitting,       setSubmitting]       = useState(false);
+  const [toast,            setToast]            = useState({ visible: false, message: '', type: 'success' });
 
   useEffect(() => {
     if (projects.length === 0) dispatch(fetchPresalesProjects());
@@ -95,8 +99,9 @@ const AddLeadScreen = () => {
           project: form.project.id,
           source:  form.source || 'Walk-in',
           status:  form.status || 'New',
-          budget:  form.budget.trim(),
-          notes:   form.notes.trim(),
+          budget:        form.budget.trim(),
+          notes:         form.notes.trim(),
+          next_followup: toApiDate(followupDate),
         }),
       });
       const data = await res.json();
@@ -224,6 +229,54 @@ const AddLeadScreen = () => {
               onChangeText={(v) => set('notes', v)}
             />
           </Field>
+
+          <Field label="Next Follow-up Date">
+            <TouchableOpacity
+              style={styles.pickerBtn}
+              onPress={() => {
+                if (Platform.OS === 'android') {
+                  DateTimePickerAndroid.open({
+                    value:       followupDate || new Date(),
+                    mode:        'date',
+                    minimumDate: new Date(),
+                    onChange:    (event, date) => {
+                      if (event.type === 'set' && date) setFollowupDate(date);
+                    },
+                  });
+                } else {
+                  setShowDatePicker(true);
+                }
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={followupDate ? styles.pickerValue : styles.pickerPlaceholder}>
+                {followupDate ? formatFollowupDate(followupDate) : 'Select date (optional)'}
+              </Text>
+              {followupDate ? (
+                <TouchableOpacity
+                  onPress={() => setFollowupDate(null)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Text style={{ fontSize: 16, color: '#AAA' }}>✕</Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={styles.pickerArrow}>›</Text>
+              )}
+            </TouchableOpacity>
+          </Field>
+
+          {Platform.OS === 'ios' && showDatePicker && (
+            <DateTimePicker
+              value={followupDate || new Date()}
+              mode="date"
+              display="spinner"
+              minimumDate={new Date()}
+              onChange={(_event, date) => {
+                setShowDatePicker(false);
+                if (date) setFollowupDate(date);
+              }}
+            />
+          )}
         </View>
 
         <TouchableOpacity
