@@ -11,6 +11,7 @@ import { COLORS } from '../../../constants/theme';
 import images from '../../../constants/images';
 import { STATUS_META } from '../../../constants/presalesMockData';
 import { fetchPresalesLeads } from '../../../redux/actions/presalesActions';
+import BulkUploadModal from './BulkUploadModal';
 import styles from './styles';
 
 const STATUS_FILTERS = ['All', 'New', 'Cold', 'Warm', 'Lost'];
@@ -154,9 +155,10 @@ const LeadsScreen = () => {
 
   const { loading, data: leadsData } = useSelector((s) => s.presales.leads);
 
-  const [filters,    setFilters]    = useState({ status: initialFilter, assignee: 'All', project: 'All' });
-  const [search,     setSearch]     = useState('');
-  const [showFilter, setShowFilter] = useState(false);
+  const [filters,        setFilters]        = useState({ status: initialFilter, assignee: 'All', project: 'All' });
+  const [search,         setSearch]         = useState('');
+  const [showFilter,     setShowFilter]     = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -223,6 +225,9 @@ const LeadsScreen = () => {
                 <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
               </View>
             )}
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.filterIconBtn} onPress={() => setShowBulkUpload(true)}>
+            <Text style={styles.filterIconText}>{'↑'}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.addBtn} onPress={() => navigation.navigate('PreSalesAddLead')}>
             <Image source={images.plusIcon} style={styles.addIcon} />
@@ -310,6 +315,12 @@ const LeadsScreen = () => {
         onApply={setFilters}
         assignees={assignees}
         projectNames={projectNames}
+      />
+
+      <BulkUploadModal
+        visible={showBulkUpload}
+        onClose={() => setShowBulkUpload(false)}
+        onSuccess={() => dispatch(fetchPresalesLeads())}
       />
     </SafeAreaView>
   );

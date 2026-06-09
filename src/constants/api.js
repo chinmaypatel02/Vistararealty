@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://192.168.1.19:8000';
+export const BASE_URL = 'http://192.168.1.6:8000';
 
 export const PRESALES_ENDPOINTS = {
   dashboard: `${BASE_URL}/api/presales/dashboard/`,
@@ -11,5 +11,7 @@ export const PRESALES_ENDPOINTS = {
   leadDetail:     (id) => `${BASE_URL}/api/presales/leads/${id}/`,
   leadStatus:     (id) => `${BASE_URL}/api/presales/leads/${id}/status/`,
   leadTransfer:   (id) => `${BASE_URL}/api/presales/leads/${id}/transfer/`,
-  leadFollowup:   (id) => `${BASE_URL}/api/presales/leads/${id}/followup/`,
+  leadFollowup:       (id) => `${BASE_URL}/api/presales/leads/${id}/followup/`,
+  leadBulkUpload:     `${BASE_URL}/api/presales/leads/bulk-upload/`,
+  leadUploadTemplate: `${BASE_URL}/api/presales/leads/upload-template/`,
 };
