@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
 import {
   View, Text, Modal, TouchableOpacity, Animated,
-  StyleSheet, ScrollView, ActivityIndicator,
+  StyleSheet, ScrollView, ActivityIndicator, Alert, Platform,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../../../constants/theme';
 import { PRESALES_ENDPOINTS } from '../../../constants/api';
@@ -23,9 +24,10 @@ const COLUMNS = [
 const BulkUploadModal = ({ visible, onClose, onSuccess }) => {
   const slideY = useRef(new Animated.Value(600)).current;
 
-  const [phase,    setPhase]    = useState('guide');  // guide | uploading | result
-  const [result,   setResult]   = useState(null);
-  const [fileName, setFileName] = useState('');
+  const [phase,       setPhase]       = useState('guide');  // guide | uploading | result
+  const [result,      setResult]      = useState(null);
+  const [fileName,    setFileName]    = useState('');
+  const [downloading, setDownloading] = useState(false);
 
   React.useEffect(() => {
     if (visible) {
@@ -37,6 +39,26 @@ const BulkUploadModal = ({ visible, onClose, onSuccess }) => {
       Animated.timing(slideY, { toValue: 600, duration: 220, useNativeDriver: true }).start();
     }
   }, [visible]);
+
+  const downloadTemplate = async () => {
+    setDownloading(true);
+    try {
+      const dest = `${RNFS.DownloadDirectoryPath}/leads_upload_template.xlsx`;
+      await RNFS.downloadFile({
+        fromUrl: PRESALES_ENDPOINTS.leadUploadTemplate,
+        toFile:  dest,
+      }).promise;
+      Alert.alert(
+        'Downloaded!',
+        'Template saved to your Downloads folder as leads_upload_template.xlsx',
+        [{ text: 'OK' }],
+      );
+    } catch {
+      Alert.alert('Error', 'Could not download template. Check your connection.');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const pickAndUpload = async () => {
     try {
@@ -125,6 +147,17 @@ const BulkUploadModal = ({ visible, onClose, onSuccess }) => {
                   Rajesh Sharma  |  +91 98765 43210  |  Walk-in  |  New  |  Vistara Heights
                 </Text>
               </View>
+
+              <TouchableOpacity
+                style={styles.templateBtn}
+                onPress={downloadTemplate}
+                disabled={downloading}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.templateBtnText}>
+                  {downloading ? 'Downloading…' : '⬇  Download Sample Template'}
+                </Text>
+              </TouchableOpacity>
 
               <TouchableOpacity style={styles.uploadBtn} onPress={pickAndUpload} activeOpacity={0.85}>
                 <Text style={styles.uploadBtnText}>📂  Pick Excel File & Upload</Text>
@@ -253,6 +286,13 @@ const styles = StyleSheet.create({
   },
   sampleTitle: { fontSize: 11, fontWeight: '700', color: '#F9A825', marginBottom: 4 },
   sampleRow:   { fontSize: 12, color: '#555', lineHeight: 18 },
+
+  templateBtn: {
+    marginTop: 12, paddingVertical: 12, borderRadius: 10,
+    borderWidth: 1.5, borderColor: COLORS.primary,
+    alignItems: 'center', marginBottom: 10,
+  },
+  templateBtnText: { fontSize: 14, fontWeight: '600', color: COLORS.primary },
 
   uploadBtn: {
     paddingVertical: 14, borderRadius: 12,
